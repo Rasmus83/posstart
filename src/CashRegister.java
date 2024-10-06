@@ -210,7 +210,7 @@ public class CashRegister implements ActionListener
             int antal = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getAntal();
 
             receipt.append(produkt.getNamn() + "           " + antal + " *     " 
-                    + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n");
+                    + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n\n");
         }
         else
         {

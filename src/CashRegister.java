@@ -6,6 +6,13 @@ import java.awt.FontFormatException;
 import java.awt.TextArea;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -17,46 +24,81 @@ import javax.swing.JTextArea;
 import javax.swing.Timer;
 import java.awt.event.*;
 
+public class CashRegister implements ActionListener
+{
+    private JFrame frame;
+    private JTextArea receipt;
+    private JButton kaffeButton;
+    private JButton nalleButton;
+    private JButton muggButton;
+    private JButton chipsButton;
+    private JButton vaniljYoghurtButton;
+    private JButton daimButton;
+    private JTextArea inputProductName;
+    private JTextArea inputCount;
+    private JButton addToReceiptButton;
+    private JButton payButton;
 
+    private Produkt kaffe;
+    private Produkt nalle;
+    private Produkt mugg;
+    private Produkt chips;
+    private Produkt yoghurt;
+    private Produkt daim;
 
-public class CashRegister implements ActionListener {
+    private ArrayList<Receipt> tillagdaProdukter;
 
-    
-    JFrame frame;
-    JTextArea receipt;
-    JButton kaffeButton;
-    JButton nalleButton;
-    JButton muggButton;
-    JButton chipsButton;
-    JButton vaniljYoghurtButton;
-    JButton daimButton;
-    JTextArea inputProductName;
-    JTextArea inputCount;
-    JButton addToReceiptButton;
-    JButton payButton;
+    private Map<String, Float> produktHashMap;
 
+    private double totalSumma;
 
-    public CashRegister(){
+    private boolean betalat;
+
+    private Timer timer;
+
+    public CashRegister()
+    {
         frame = new JFrame("IOT24 POS");
 
+        kaffe = new Produkt("Kaffe", 51);
+        nalle = new Produkt("Nalle", 110);
+        mugg = new Produkt("Mugg", 10);
+        chips = new Produkt("Chips", 23);
+        yoghurt = new Produkt("Yoghurt", 37);
+        daim = new Produkt("Daim", 16);
+
+        produktHashMap = new HashMap<String, Float>();
+        produktHashMap.put(kaffe.getNamn(), kaffe.getPris());
+        produktHashMap.put(nalle.getNamn(), nalle.getPris());
+        produktHashMap.put(mugg.getNamn(), mugg.getPris());
+        produktHashMap.put(chips.getNamn(), chips.getPris());
+        produktHashMap.put(yoghurt.getNamn(), yoghurt.getPris());
+        produktHashMap.put(daim.getNamn(), daim.getPris());
+
+        tillagdaProdukter = new ArrayList<Receipt>();
+
+        totalSumma = 0;
+
+        betalat = false;
+
+        timer = new Timer(0, this);
 
         createReceiptArea();
         createQuickButtonsArea();
         createAddArea();
 
         frame.getContentPane().setBackground(Color.BLACK);
-        frame.setSize(1000,800); 
+        frame.setSize(1000,800);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.setLayout(null);
     
-        frame.setVisible(true);        
-            
-
+        frame.setVisible(true);
     }
 
-    private void createAddArea(){
+    private void createAddArea()
+    {
         inputProductName = new JTextArea();
         inputProductName.setBounds(20,650,300,30);
         inputProductName.setFont(new Font("Arial Black", Font.BOLD, 18));
@@ -72,55 +114,57 @@ public class CashRegister implements ActionListener {
         inputCount.setFont(new Font("Arial Black", Font.BOLD, 18));
         frame.add(inputCount);
 
-
         addToReceiptButton = new JButton("Add");
         addToReceiptButton.setBounds(400,640,70,50);
         addToReceiptButton.setFont(new Font("Arial Black", Font.PLAIN, 14));
+        addToReceiptButton.addActionListener(this);
         frame.add(addToReceiptButton);
-
 
         payButton = new JButton("Pay");
         payButton.setBounds(480,640,70,50);
         payButton.setFont(new Font("Arial Black", Font.PLAIN, 14));
+        payButton.addActionListener(this);
         frame.add(payButton);
-
-
     }
 
-    private void createQuickButtonsArea() {
+    private void createQuickButtonsArea()
+    {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panel.setBackground(Color.green);
         panel.setPreferredSize(new Dimension(600, 600));
 
-        kaffeButton = new JButton("Kaffe");
+        kaffeButton = new JButton(kaffe.getNamn());
+        kaffeButton.addActionListener(this);
         panel.add(kaffeButton);
 
-        nalleButton = new JButton("Nalle");
+        nalleButton = new JButton(nalle.getNamn());
+        nalleButton.addActionListener(this);
         panel.add(nalleButton);
 
-        muggButton = new JButton("Mugg");
+        muggButton = new JButton(mugg.getNamn());
+        muggButton.addActionListener(this);
         panel.add(muggButton);
 
-        chipsButton = new JButton("Chips");
+        chipsButton = new JButton(chips.getNamn());
+        chipsButton.addActionListener(this);
         panel.add(chipsButton);
 
-        vaniljYoghurtButton = new JButton("Yoghurt");
+        vaniljYoghurtButton = new JButton(yoghurt.getNamn());
+        vaniljYoghurtButton.addActionListener(this);
         panel.add(vaniljYoghurtButton);
         
-
-        daimButton = new JButton("Daim");
+        daimButton = new JButton(daim.getNamn());
+        daimButton.addActionListener(this);
         panel.add(daimButton);
-
-
-
 
         panel.setBounds(0, 0, 600, 600);
 
         frame.add(panel);
     }
 
-    private void createReceiptArea() {
+    private void createReceiptArea()
+    {
         receipt = new JTextArea();
         receipt.setSize(400,400); 
         receipt.setLineWrap(true);
@@ -136,25 +180,111 @@ public class CashRegister implements ActionListener {
         frame.add(scroll);    
     }
 
-    public void run(){
-        receipt.append("                     STEFANS SUPERSHOP\n");
-        receipt.append("----------------------------------------------------\n");
-        receipt.append("\n");
-        receipt.append("Kvittonummer: 122        Datum: 2024-09-01 13:00:21\n");
-        receipt.append("----------------------------------------------------\n");
-        receipt.append("Kaffe Gevalia           5 *     51.00    =   255.00  \n");
-        receipt.append("Nallebjörn              1 *     110.00   =   110.00  \n");
-        receipt.append("Total                                        ------\n");
-        receipt.append("                                             306.00\n");
-        receipt.append("TACK FÖR DITT KÖP\n");
+    public void run()
+    {
+        if(betalat)
+        {
+            receipt.append("Total                                        ------\n");
+            receipt.append("                                             " + totalSumma + "\n");
+            receipt.append("TACK FÖR DITT KÖP\n");
 
+            tillagdaProdukter.clear();
+
+            totalSumma = 0;
+
+            betalat = false;
+
+            timer.setInitialDelay(5*1000);
+            timer.start();
+        }
+        if(!tillagdaProdukter.isEmpty())
+        {
+            if(tillagdaProdukter.size() == 1)
+            {
+                int kvittoNummer = new Random().nextInt(999) + 1;
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                receipt.append("Kvittonummer: " + kvittoNummer + "        Datum: " + currentDate + "\n");
+                receipt.append("----------------------------------------------------\n");
+            }
+            Produkt produkt = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getProdukt();
+            int antal = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getAntal();
+
+            receipt.append(produkt.getNamn() + "           " + antal + " *     " 
+                    + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n");
+        }
+        else
+        {
+            receipt.append("                     STEFANS SUPERSHOP\n");
+            receipt.append("----------------------------------------------------\n");
+            receipt.append("\n");
+        }
     }            
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
-    }
+    public void actionPerformed(ActionEvent e)
+    {
+        if(e.getSource() == timer)
+        {
+            receipt.setText("");
+            timer.stop();
+            run();
+        }
 
+        if(!timer.isRunning())
+        {
+            if(e.getSource() == kaffeButton)
+                inputProductName.setText(kaffe.getNamn());
     
+            else if(e.getSource() == nalleButton)
+                inputProductName.setText(nalle.getNamn());
+    
+            else if(e.getSource() == muggButton)
+                inputProductName.setText(mugg.getNamn());
+    
+            else if(e.getSource() == chipsButton)
+                inputProductName.setText(chips.getNamn());
+    
+            else if(e.getSource() == vaniljYoghurtButton)
+                inputProductName.setText(yoghurt.getNamn());
+    
+            else if(e.getSource() == daimButton)
+                inputProductName.setText(daim.getNamn());
+    
+            else if(e.getSource() == addToReceiptButton)
+            {
+                Produkt produkt = new Produkt();
+                try
+                {
+                    produkt.setPris(produktHashMap.get(inputProductName.getText()));
+                }
+                catch(NullPointerException exception)
+                {
+                    return;
+                }
+                produkt.setNamn(inputProductName.getText());
+    
+                try
+                {
+                    if(Integer.parseInt(inputCount.getText()) == 0)
+                        throw new NumberFormatException();
+                    tillagdaProdukter.add(new Receipt(produkt, Integer.parseInt(inputCount.getText())));
+                }
+                catch(NumberFormatException exception)
+                {
+                    return;
+                }
+                totalSumma += (produkt.getPris() * Integer.parseInt(inputCount.getText()));
+                run();
+            }
+    
+            else if(e.getSource() == payButton)
+            {
+                if(!tillagdaProdukter.isEmpty())
+                {
+                    betalat = true;
+                    run();
+                }
+            }
+        }
+    }
 }

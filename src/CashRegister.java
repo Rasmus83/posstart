@@ -266,7 +266,7 @@ public class CashRegister implements ActionListener
                 try
                 {
                     if(Integer.parseInt(inputCount.getText()) == 0)
-                        throw new NumberFormatException();
+                        return;
                     tillagdaProdukter.add(new Receipt(produkt, Integer.parseInt(inputCount.getText())));
                 }
                 catch(NumberFormatException exception)

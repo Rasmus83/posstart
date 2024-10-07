@@ -197,7 +197,7 @@ public class CashRegister implements ActionListener
             timer.setInitialDelay(5*1000);
             timer.start();
         }
-        if(!tillagdaProdukter.isEmpty())
+        else if(!tillagdaProdukter.isEmpty())
         {
             if(tillagdaProdukter.size() == 1)
             {

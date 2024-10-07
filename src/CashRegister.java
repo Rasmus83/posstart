@@ -214,9 +214,12 @@ public class CashRegister implements ActionListener
         }
         else
         {
-            receipt.append("                     STEFANS SUPERSHOP\n");
-            receipt.append("----------------------------------------------------\n");
-            receipt.append("\n");
+            if(!timer.isRunning())
+            {
+                receipt.append("                     STEFANS SUPERSHOP\n");
+                receipt.append("----------------------------------------------------\n");
+                receipt.append("\n");
+            }
         }
     }            
 

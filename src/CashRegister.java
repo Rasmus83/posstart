@@ -46,9 +46,9 @@ public class CashRegister implements ActionListener
     private Produkt yoghurt;
     private Produkt daim;
 
-    private ArrayList<Receipt> tillagdaProdukter;
-
     private Map<String, Float> produktHashMap;
+
+    private ArrayList<Receipt> tillagdaProdukter;
 
     private double totalSumma;
 
@@ -67,7 +67,7 @@ public class CashRegister implements ActionListener
         yoghurt = new Produkt("Yoghurt", 37);
         daim = new Produkt("Daim", 16);
 
-        produktHashMap = new HashMap<String, Float>();
+        produktHashMap = new HashMap<String, Float>(6);
         produktHashMap.put(kaffe.getNamn(), kaffe.getPris());
         produktHashMap.put(nalle.getNamn(), nalle.getPris());
         produktHashMap.put(mugg.getNamn(), mugg.getPris());

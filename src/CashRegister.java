@@ -52,6 +52,8 @@ public class CashRegister implements ActionListener
 
     private double totalSumma;
 
+    private boolean kvittoUtskrivet;
+
     private Timer timer;
 
     public CashRegister()
@@ -76,6 +78,8 @@ public class CashRegister implements ActionListener
         tillagdaProdukter = new ArrayList<Receipt>();
 
         totalSumma = 0;
+
+        kvittoUtskrivet = false;
 
         timer = new Timer(0, this);
 
@@ -186,6 +190,8 @@ public class CashRegister implements ActionListener
 
         totalSumma = 0;
 
+        kvittoUtskrivet = false;
+
         timer.setInitialDelay(5*1000);
         timer.start();
     }
@@ -194,12 +200,13 @@ public class CashRegister implements ActionListener
     {
         if(!tillagdaProdukter.isEmpty())
         {
-            if(tillagdaProdukter.size() == 1)
+            if(!kvittoUtskrivet)
             {
                 int kvittoNummer = new Random().nextInt(999) + 1;
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                 receipt.append("Kvittonummer: " + kvittoNummer + "        Datum: " + currentDate + "\n");
                 receipt.append("----------------------------------------------------\n");
+                kvittoUtskrivet = true;
             }
             Produkt produkt = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getProdukt();
             int antal = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getAntal();

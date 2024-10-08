@@ -52,6 +52,8 @@ public class CashRegister implements ActionListener
 
     private Produkt senastValdProdukt;
 
+    private int föredettaAntal;
+
     private double totalSumma;
 
     private boolean kvittoUtskrivet;
@@ -80,6 +82,8 @@ public class CashRegister implements ActionListener
         tillagdaProdukter = new ArrayList<Receipt>();
 
         senastValdProdukt = new Produkt();
+
+        föredettaAntal = 0;
 
         totalSumma = 0;
 
@@ -212,11 +216,26 @@ public class CashRegister implements ActionListener
                 receipt.append("----------------------------------------------------\n");
                 kvittoUtskrivet = true;
             }
-            Produkt produkt = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getProdukt();
+            Produkt produkt = senastValdProdukt;
             int antal = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getAntal();
+            for(int i = 0; i < tillagdaProdukter.size(); i++)
+            {
+                if(tillagdaProdukter.get(i).getProdukt().getNamn().equals(senastValdProdukt.getNamn()))
+                {
+                    antal = tillagdaProdukter.get(i).getAntal();
+                    break;
+                }
+            }
 
-            receipt.append(produkt.getNamn() + "           " + antal + " *     " 
-                    + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n\n");
+            if(receipt.getText().contains(senastValdProdukt.getNamn()))
+                receipt.setText(receipt.getText().replace(senastValdProdukt.getNamn() + "           " + föredettaAntal + " *     " 
+                        + senastValdProdukt.getPris() + "    =   "  + senastValdProdukt.getPris() * föredettaAntal, 
+                        senastValdProdukt.getNamn() + "           " + antal + " *     " 
+                        + senastValdProdukt.getPris() + "    =   "  + senastValdProdukt.getPris() * antal));
+
+            else
+                receipt.append(produkt.getNamn() + "           " + antal + " *     " 
+                        + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n\n");
         }
         else
         {
@@ -245,7 +264,24 @@ public class CashRegister implements ActionListener
         {
             if(Integer.parseInt(inputCount.getText()) == 0)
                 return;
-            tillagdaProdukter.add(new Receipt(senastValdProdukt, Integer.parseInt(inputCount.getText())));
+            for(int i = 0; i < tillagdaProdukter.size(); i++)
+            {
+                if(tillagdaProdukter.get(i).getProdukt().getNamn().equals(senastValdProdukt.getNamn()))
+                {
+                    föredettaAntal = tillagdaProdukter.get(i).getAntal();
+                    tillagdaProdukter.get(i).setAntal(tillagdaProdukter.get(i).getAntal() + Integer.parseInt(inputCount.getText()));
+                    break;
+                }
+                else if(i == tillagdaProdukter.size() - 1)
+                {
+                    tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris()), 
+                            Integer.parseInt(inputCount.getText())));
+                    break;
+                }
+            }
+            if(tillagdaProdukter.isEmpty())
+                tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris()), 
+                        Integer.parseInt(inputCount.getText())));
         }
         catch(NumberFormatException exception)
         {

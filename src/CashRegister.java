@@ -50,6 +50,8 @@ public class CashRegister implements ActionListener
 
     private ArrayList<Receipt> tillagdaProdukter;
 
+    private Produkt senastValdProdukt;
+
     private double totalSumma;
 
     private boolean kvittoUtskrivet;
@@ -76,6 +78,8 @@ public class CashRegister implements ActionListener
         produktHashMap.put(daim.getNamn(), daim.getPris());
 
         tillagdaProdukter = new ArrayList<Receipt>();
+
+        senastValdProdukt = new Produkt();
 
         totalSumma = 0;
 
@@ -227,28 +231,27 @@ public class CashRegister implements ActionListener
 
     private void addProdukt()
     {
-        Produkt produkt = new Produkt();
         try
         {
-            produkt.setPris(produktHashMap.get(inputProductName.getText()));
+            senastValdProdukt.setPris(produktHashMap.get(inputProductName.getText()));
         }
         catch(NullPointerException exception)
         {
             return;
         }
-        produkt.setNamn(inputProductName.getText());
+        senastValdProdukt.setNamn(inputProductName.getText());
 
         try
         {
             if(Integer.parseInt(inputCount.getText()) == 0)
                 return;
-            tillagdaProdukter.add(new Receipt(produkt, Integer.parseInt(inputCount.getText())));
+            tillagdaProdukter.add(new Receipt(senastValdProdukt, Integer.parseInt(inputCount.getText())));
         }
         catch(NumberFormatException exception)
         {
             return;
         }
-        totalSumma += (produkt.getPris() * Integer.parseInt(inputCount.getText()));
+        totalSumma += (senastValdProdukt.getPris() * Integer.parseInt(inputCount.getText()));
         run();
     }
 

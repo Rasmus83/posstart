@@ -52,8 +52,6 @@ public class CashRegister implements ActionListener
 
     private double totalSumma;
 
-    private boolean betalat;
-
     private Timer timer;
 
     public CashRegister()
@@ -78,8 +76,6 @@ public class CashRegister implements ActionListener
         tillagdaProdukter = new ArrayList<Receipt>();
 
         totalSumma = 0;
-
-        betalat = false;
 
         timer = new Timer(0, this);
 
@@ -180,24 +176,23 @@ public class CashRegister implements ActionListener
         frame.add(scroll);    
     }
 
+    private void betala()
+    {
+        receipt.append("Total                                        ------\n");
+        receipt.append("                                             " + totalSumma + "\n");
+        receipt.append("TACK FÖR DITT KÖP\n");
+
+        tillagdaProdukter.clear();
+
+        totalSumma = 0;
+
+        timer.setInitialDelay(5*1000);
+        timer.start();
+    }
+
     public void run()
     {
-        if(betalat)
-        {
-            receipt.append("Total                                        ------\n");
-            receipt.append("                                             " + totalSumma + "\n");
-            receipt.append("TACK FÖR DITT KÖP\n");
-
-            tillagdaProdukter.clear();
-
-            totalSumma = 0;
-
-            betalat = false;
-
-            timer.setInitialDelay(5*1000);
-            timer.start();
-        }
-        else if(!tillagdaProdukter.isEmpty())
+        if(!tillagdaProdukter.isEmpty())
         {
             if(tillagdaProdukter.size() == 1)
             {
@@ -222,6 +217,33 @@ public class CashRegister implements ActionListener
             }
         }
     }            
+
+    private void addProdukt()
+    {
+        Produkt produkt = new Produkt();
+        try
+        {
+            produkt.setPris(produktHashMap.get(inputProductName.getText()));
+        }
+        catch(NullPointerException exception)
+        {
+            return;
+        }
+        produkt.setNamn(inputProductName.getText());
+
+        try
+        {
+            if(Integer.parseInt(inputCount.getText()) == 0)
+                return;
+            tillagdaProdukter.add(new Receipt(produkt, Integer.parseInt(inputCount.getText())));
+        }
+        catch(NumberFormatException exception)
+        {
+            return;
+        }
+        totalSumma += (produkt.getPris() * Integer.parseInt(inputCount.getText()));
+        run();
+    }
 
     @Override
     public void actionPerformed(ActionEvent e)
@@ -255,37 +277,14 @@ public class CashRegister implements ActionListener
     
             else if(e.getSource() == addToReceiptButton)
             {
-                Produkt produkt = new Produkt();
-                try
-                {
-                    produkt.setPris(produktHashMap.get(inputProductName.getText()));
-                }
-                catch(NullPointerException exception)
-                {
-                    return;
-                }
-                produkt.setNamn(inputProductName.getText());
-    
-                try
-                {
-                    if(Integer.parseInt(inputCount.getText()) == 0)
-                        return;
-                    tillagdaProdukter.add(new Receipt(produkt, Integer.parseInt(inputCount.getText())));
-                }
-                catch(NumberFormatException exception)
-                {
-                    return;
-                }
-                totalSumma += (produkt.getPris() * Integer.parseInt(inputCount.getText()));
-                run();
+                addProdukt();
             }
     
             else if(e.getSource() == payButton)
             {
                 if(!tillagdaProdukter.isEmpty())
                 {
-                    betalat = true;
-                    run();
+                    betala();
                 }
             }
         }

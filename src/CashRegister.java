@@ -13,6 +13,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -46,19 +49,21 @@ public class CashRegister implements ActionListener
     private Produkt yoghurt;
     private Produkt daim;
 
+    private ArrayList<Produkt> produkter = new ArrayList<Produkt>();
+
     private Map<String, Float> produktHashMap;
 
-    private ArrayList<Receipt> tillagdaProdukter;
+    private ArrayList<Receipt> tillagdaProdukter = new ArrayList<Receipt>();
 
-    private Produkt senastValdProdukt;
+    private Produkt senastValdProdukt = new Produkt();
 
-    private int föredettaAntal;
+    private int föredettaAntal = 0;
 
-    private double totalSumma;
+    private int kvittoNummer = 0;
 
-    private boolean kvittoUtskrivet;
+    private double totalSumma = 0;
 
-    private Timer timer;
+    private Timer timer = new Timer(0, this);
 
     public CashRegister()
     {
@@ -78,18 +83,6 @@ public class CashRegister implements ActionListener
         produktHashMap.put(chips.getNamn(), chips.getPris());
         produktHashMap.put(yoghurt.getNamn(), yoghurt.getPris());
         produktHashMap.put(daim.getNamn(), daim.getPris());
-
-        tillagdaProdukter = new ArrayList<Receipt>();
-
-        senastValdProdukt = new Produkt();
-
-        föredettaAntal = 0;
-
-        totalSumma = 0;
-
-        kvittoUtskrivet = false;
-
-        timer = new Timer(0, this);
 
         createReceiptArea();
         createQuickButtonsArea();
@@ -198,7 +191,8 @@ public class CashRegister implements ActionListener
 
         totalSumma = 0;
 
-        kvittoUtskrivet = false;
+        inputProductName.setText("");
+        inputCount.setText("");
 
         timer.setInitialDelay(5*1000);
         timer.start();
@@ -208,14 +202,6 @@ public class CashRegister implements ActionListener
     {
         if(!tillagdaProdukter.isEmpty())
         {
-            if(!kvittoUtskrivet)
-            {
-                int kvittoNummer = new Random().nextInt(999) + 1;
-                String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                receipt.append("Kvittonummer: " + kvittoNummer + "        Datum: " + currentDate + "\n");
-                receipt.append("----------------------------------------------------\n");
-                kvittoUtskrivet = true;
-            }
             Produkt produkt = senastValdProdukt;
             int antal = tillagdaProdukter.get(tillagdaProdukter.size() - 1).getAntal();
             for(int i = 0; i < tillagdaProdukter.size(); i++)
@@ -244,6 +230,9 @@ public class CashRegister implements ActionListener
                 receipt.append("                     STEFANS SUPERSHOP\n");
                 receipt.append("----------------------------------------------------\n");
                 receipt.append("\n");
+                String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                receipt.append("Kvittonummer: " + kvittoNummer++ + "        Datum: " + currentDate + "\n");
+                receipt.append("----------------------------------------------------\n");
             }
         }
     }            
@@ -288,6 +277,8 @@ public class CashRegister implements ActionListener
             return;
         }
         totalSumma += (senastValdProdukt.getPris() * Integer.parseInt(inputCount.getText()));
+        inputProductName.setText("");
+        inputCount.setText("");
         run();
     }
 

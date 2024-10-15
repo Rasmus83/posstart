@@ -53,7 +53,7 @@ public class CashRegister implements ActionListener
 
     private Timer timer = new Timer(0, this);
 
-    FileAttributes type = FileAttributes.None;
+    private FileAttributes type = FileAttributes.None;
 
     private enum FileAttributes
     {

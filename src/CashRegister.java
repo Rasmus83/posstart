@@ -2,20 +2,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.TextArea;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -31,27 +31,15 @@ public class CashRegister implements ActionListener
 {
     private JFrame frame;
     private JTextArea receipt;
-    private JButton kaffeButton;
-    private JButton nalleButton;
-    private JButton muggButton;
-    private JButton chipsButton;
-    private JButton vaniljYoghurtButton;
-    private JButton daimButton;
+    private ArrayList<JButton> buttons = new ArrayList<JButton>();
     private JTextArea inputProductName;
     private JTextArea inputCount;
     private JButton addToReceiptButton;
     private JButton payButton;
 
-    private Produkt kaffe;
-    private Produkt nalle;
-    private Produkt mugg;
-    private Produkt chips;
-    private Produkt yoghurt;
-    private Produkt daim;
-
     private ArrayList<Produkt> produkter = new ArrayList<Produkt>();
 
-    private Map<String, Float> produktHashMap;
+    private Map<String, Float> produktHashMap = new HashMap<String, Float>();
 
     private ArrayList<Receipt> tillagdaProdukter = new ArrayList<Receipt>();
 
@@ -65,24 +53,30 @@ public class CashRegister implements ActionListener
 
     private Timer timer = new Timer(0, this);
 
+    FileAttributes type = FileAttributes.None;
+
+    private enum FileAttributes
+    {
+        None,
+        Products,
+        ReceiptNumber
+    };
+
     public CashRegister()
     {
         frame = new JFrame("IOT24 POS");
 
-        kaffe = new Produkt("Kaffe", 51);
-        nalle = new Produkt("Nalle", 110);
-        mugg = new Produkt("Mugg", 10);
-        chips = new Produkt("Chips", 23);
-        yoghurt = new Produkt("Yoghurt", 37);
-        daim = new Produkt("Daim", 16);
+        try {
+            loadCashRegisterXml();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
-        produktHashMap = new HashMap<String, Float>(6);
-        produktHashMap.put(kaffe.getNamn(), kaffe.getPris());
-        produktHashMap.put(nalle.getNamn(), nalle.getPris());
-        produktHashMap.put(mugg.getNamn(), mugg.getPris());
-        produktHashMap.put(chips.getNamn(), chips.getPris());
-        produktHashMap.put(yoghurt.getNamn(), yoghurt.getPris());
-        produktHashMap.put(daim.getNamn(), daim.getPris());
+        for(Produkt i : produkter)
+        {
+            produktHashMap.put(i.getNamn(), i.getPris());
+        }
 
         createReceiptArea();
         createQuickButtonsArea();
@@ -96,6 +90,89 @@ public class CashRegister implements ActionListener
         frame.setLayout(null);
     
         frame.setVisible(true);
+    }
+
+    private void loadCashRegisterXml() throws FileNotFoundException
+    {
+        Scanner scanner = new Scanner(new File("CashRegister.xml"));
+        String line;
+        while(scanner.hasNextLine())
+        {
+            line = scanner.nextLine();
+            if(line.contains("<CashRegister>"))
+            {
+                while(!line.contains("</CashRegister>"))
+                {
+                    line = scanner.nextLine();
+                    if(!line.isEmpty())
+                        line.trim();
+
+                    if(line.contains("<Products>"))
+                        type = FileAttributes.Products;
+                    else if(line.contains("<ReceiptNumber"))
+                        type = FileAttributes.ReceiptNumber;
+
+                    String[] arrOfStr = null;
+                    if(type == FileAttributes.Products)
+                    {
+                        Produkt prod = new Produkt();
+                        boolean nameSet = false;
+                        boolean priceSet = false;
+                        while(!line.contains("</Products>"))
+                        {
+                            line = scanner.nextLine();
+                            if(line.contains("<Product>"))
+                            {
+                                while(!line.contains("</Product>"))
+                                {
+                                    line = scanner.nextLine();
+                                    if(line.contains("<Name"))
+                                    {
+                                        arrOfStr = line.split("=");
+                                        String name = arrOfStr[1];
+                                        name = name.trim();
+                                        name = name.replace("\"", "");
+                                        name = name.replace("/>", "");
+                                        prod.setNamn(name);
+                                        nameSet = true;
+                                    }
+                                    else if(line.contains("<Price"))
+                                    {
+                                        arrOfStr = line.split("=");
+                                        String price = arrOfStr[1];
+                                        price = price.trim();
+                                        price = price.replace("\"", "");
+                                        price = price.replace("/>", "");
+                                        prod.setPris(Float.parseFloat(price));
+                                        priceSet = true;
+                                    }
+                                
+                                    if(nameSet && priceSet)
+                                    {
+                                        produkter.add(new Produkt(prod.getNamn(), prod.getPris()));
+                                        nameSet = false;
+                                        priceSet = false;
+                                        type = FileAttributes.None;
+                                        line = scanner.nextLine();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if(type == FileAttributes.ReceiptNumber)
+                    {
+                        arrOfStr = line.split("=");
+                        String receiptNumber = arrOfStr[1];
+                        receiptNumber = receiptNumber.trim();
+                        receiptNumber = receiptNumber.replace("\"", "");
+                        receiptNumber = receiptNumber.replace("/>", "");
+                        kvittoNummer = Integer.parseInt(receiptNumber);
+                        type = FileAttributes.None;
+                    }
+                }
+            }
+        }
+        scanner.close();
     }
 
     private void createAddArea()
@@ -135,29 +212,12 @@ public class CashRegister implements ActionListener
         panel.setBackground(Color.green);
         panel.setPreferredSize(new Dimension(600, 600));
 
-        kaffeButton = new JButton(kaffe.getNamn());
-        kaffeButton.addActionListener(this);
-        panel.add(kaffeButton);
-
-        nalleButton = new JButton(nalle.getNamn());
-        nalleButton.addActionListener(this);
-        panel.add(nalleButton);
-
-        muggButton = new JButton(mugg.getNamn());
-        muggButton.addActionListener(this);
-        panel.add(muggButton);
-
-        chipsButton = new JButton(chips.getNamn());
-        chipsButton.addActionListener(this);
-        panel.add(chipsButton);
-
-        vaniljYoghurtButton = new JButton(yoghurt.getNamn());
-        vaniljYoghurtButton.addActionListener(this);
-        panel.add(vaniljYoghurtButton);
-        
-        daimButton = new JButton(daim.getNamn());
-        daimButton.addActionListener(this);
-        panel.add(daimButton);
+        for(Produkt i : produkter)
+        {
+            buttons.add(new JButton(i.getNamn()));
+            buttons.get(buttons.size() - 1).addActionListener(this);
+            panel.add( buttons.get(buttons.size() - 1));
+        }
 
         panel.setBounds(0, 0, 600, 600);
 
@@ -231,7 +291,7 @@ public class CashRegister implements ActionListener
                 receipt.append("----------------------------------------------------\n");
                 receipt.append("\n");
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                receipt.append("Kvittonummer: " + kvittoNummer++ + "        Datum: " + currentDate + "\n");
+                receipt.append("Kvittonummer: " + kvittoNummer + "        Datum: " + currentDate + "\n");
                 receipt.append("----------------------------------------------------\n");
             }
         }
@@ -243,7 +303,7 @@ public class CashRegister implements ActionListener
         {
             senastValdProdukt.setPris(produktHashMap.get(inputProductName.getText()));
         }
-        catch(NullPointerException exception)
+        catch(NullPointerException e)
         {
             return;
         }
@@ -272,7 +332,7 @@ public class CashRegister implements ActionListener
                 tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris()), 
                         Integer.parseInt(inputCount.getText())));
         }
-        catch(NumberFormatException exception)
+        catch(NumberFormatException e)
         {
             return;
         }
@@ -289,34 +349,44 @@ public class CashRegister implements ActionListener
         {
             receipt.setText("");
             timer.stop();
+            try
+            {
+                Scanner scanner = new Scanner(Paths.get("CashRegister.xml"), StandardCharsets.UTF_8.name());
+                String line = scanner.useDelimiter("\\A").next();
+                line = line.replace("ReceiptNumber = \"" + Integer.toString(kvittoNummer) + "\"", 
+                        "ReceiptNumber = \"" + Integer.toString(kvittoNummer + 1) + "\"");
+                Files.write(Paths.get("CashRegister.xml"), line.getBytes());
+                scanner.close();
+            }
+            catch(IOException e1)
+            {
+                e1.printStackTrace();
+            }
+            try {
+                loadCashRegisterXml();
+            } catch (FileNotFoundException e1)
+            {
+                e1.printStackTrace();
+            }
             run();
         }
 
         if(!timer.isRunning())
         {
-            if(e.getSource() == kaffeButton)
-                inputProductName.setText(kaffe.getNamn());
-    
-            else if(e.getSource() == nalleButton)
-                inputProductName.setText(nalle.getNamn());
-    
-            else if(e.getSource() == muggButton)
-                inputProductName.setText(mugg.getNamn());
-    
-            else if(e.getSource() == chipsButton)
-                inputProductName.setText(chips.getNamn());
-    
-            else if(e.getSource() == vaniljYoghurtButton)
-                inputProductName.setText(yoghurt.getNamn());
-    
-            else if(e.getSource() == daimButton)
-                inputProductName.setText(daim.getNamn());
-    
-            else if(e.getSource() == addToReceiptButton)
+            for(int i = 0; i < buttons.size(); i++)
+            {
+                if(e.getSource() == buttons.get(i))
+                {
+                    inputProductName.setText(buttons.get(i).getText());
+                    break;
+                }
+            }
+
+            if(e.getSource() == addToReceiptButton)
             {
                 addProdukt();
             }
-    
+
             else if(e.getSource() == payButton)
             {
                 if(!tillagdaProdukter.isEmpty())

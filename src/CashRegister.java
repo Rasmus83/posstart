@@ -95,10 +95,9 @@ public class CashRegister implements ActionListener
     private void loadCashRegisterXml() throws FileNotFoundException
     {
         Scanner scanner = new Scanner(new File("CashRegister.xml"));
-        String line;
         while(scanner.hasNextLine())
         {
-            line = scanner.nextLine();
+            String line = scanner.nextLine();
             if(line.contains("<CashRegister>"))
             {
                 while(!line.contains("</CashRegister>"))
@@ -351,12 +350,25 @@ public class CashRegister implements ActionListener
             timer.stop();
             try
             {
-                Scanner scanner = new Scanner(Paths.get("CashRegister.xml"), StandardCharsets.UTF_8.name());
-                String line = scanner.useDelimiter("\\A").next();
-                line = line.replace("ReceiptNumber = \"" + Integer.toString(kvittoNummer) + "\"", 
-                        "ReceiptNumber = \"" + Integer.toString(kvittoNummer + 1) + "\"");
-                Files.write(Paths.get("CashRegister.xml"), line.getBytes());
+                Scanner scanner = new Scanner(new File("CashRegister.xml"));
+                Scanner scanner2 = new Scanner(Paths.get("CashRegister.xml"), StandardCharsets.UTF_8.name());
+
+                String file = scanner2.useDelimiter("\\A").next();
+                String line = "";
+
+                while(scanner.hasNextLine())
+                {
+                    if(line.contains("ReceiptNumber"))
+                        break;
+                    else
+                        line = scanner.nextLine();
+                }
+                file = file.replace(line, 
+                        "<ReceiptNumber = \"" + Integer.toString(kvittoNummer + 1) + "\"/>");
+                Files.write(Paths.get("CashRegister.xml"), file.getBytes());
+
                 scanner.close();
+                scanner2.close();
             }
             catch(IOException e1)
             {

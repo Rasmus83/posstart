@@ -363,8 +363,7 @@ public class CashRegister implements ActionListener
                     else
                         line = scanner.nextLine();
                 }
-                file = file.replace(line, 
-                        "<ReceiptNumber = \"" + Integer.toString(kvittoNummer + 1) + "\"/>");
+                file = file.replace(line, line.replace(Integer.toString(kvittoNummer), Integer.toString(kvittoNummer + 1)));
                 Files.write(Paths.get("CashRegister.xml"), file.getBytes());
 
                 scanner.close();

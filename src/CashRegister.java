@@ -49,6 +49,7 @@ public class CashRegister implements ActionListener
     private int kvittoNummer = 0;
 
     private double totalSumma = 0;
+    private double utSkrivenTotalSumma = 0;
 
     private Timer timer = new Timer(0, this);
 
@@ -248,8 +249,6 @@ public class CashRegister implements ActionListener
 
     private void betala()
     {
-        receipt.append("Total                                        ------\n");
-        receipt.append("                                             " + totalSumma + "\n");
         receipt.append("TACK FÖR DITT KÖP\n");
 
         tillagdaProdukter.clear();
@@ -287,6 +286,13 @@ public class CashRegister implements ActionListener
             else
                 receipt.append(produkt.getNamn() + "           " + antal + " *     " 
                         + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n\n");
+
+            receipt.setText(receipt.getText().replace("Total                                        ------\n" + 
+                    "                                             " + utSkrivenTotalSumma + "\n", ""));
+            receipt.append("Total                                        ------\n");
+            receipt.append("                                             " + totalSumma + "\n");
+
+            utSkrivenTotalSumma = totalSumma;
         }
         else
         {

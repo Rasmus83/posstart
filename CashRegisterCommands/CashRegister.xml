@@ -1,0 +1,42 @@
+<CashRegister>
+
+<Products>
+    <Product>
+        <Name = "Kaffe"/>
+        <Price = "51.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Nalle"/>
+        <Price = "110.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Mugg"/>
+        <Price = "10.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Chips"/>
+        <Price = "23.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Daim"/>
+        <Price = "16.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Choklad"/>
+        <Price = "18.0"/>
+    </Product>
+
+    <Product>
+        <Name = "Glass"/>
+        <Price = "15.0"/>
+    </Product>
+</Products>
+
+<ReceiptNumber = "0"/>
+
+</CashRegister>

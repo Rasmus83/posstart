@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -383,9 +385,10 @@ public class CashRegister implements ActionListener
             }
             catch(IOException e1)
             {
-                e1.printStackTrace();
+                System.out.println("Filen går inte att hitta");
             }
-            try {
+            try
+            {
                 loadCashRegisterXml();
             } catch (FileNotFoundException e1)
             {

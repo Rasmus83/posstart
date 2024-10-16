@@ -6,12 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -97,78 +96,85 @@ public class CashRegister implements ActionListener
         Scanner scanner = new Scanner(new File("CashRegisterCommands/CashRegister.xml"));
         while(scanner.hasNextLine())
         {
-            String line = scanner.nextLine();
-            if(line.contains("<CashRegister>"))
+            try
             {
-                while(!line.contains("</CashRegister>"))
+                String line = scanner.nextLine();
+                if(line.contains("<CashRegister>"))
                 {
-                    line = scanner.nextLine();
-                    if(!line.isEmpty())
-                        line = line.trim();
-
-                    if(line.contains("<Products>"))
-                        type = FileAttributes.Products;
-                    else if(line.contains("<ReceiptNumber"))
-                        type = FileAttributes.ReceiptNumber;
-
-                    String[] arrOfStr = null;
-                    if(type == FileAttributes.Products)
+                    while(!line.contains("</CashRegister>"))
                     {
-                        Produkt prod = new Produkt();
-                        boolean nameSet = false;
-                        boolean priceSet = false;
-                        while(!line.contains("</Products>"))
+                        line = scanner.nextLine();
+                        if(!line.isEmpty())
+                            line = line.trim();
+
+                        if(line.contains("<Products>"))
+                            type = FileAttributes.Products;
+                        else if(line.contains("<ReceiptNumber"))
+                            type = FileAttributes.ReceiptNumber;
+
+                        String[] arrOfStr = null;
+                        if(type == FileAttributes.Products)
                         {
-                            line = scanner.nextLine();
-                            if(line.contains("<Product>"))
+                            Produkt prod = new Produkt();
+                            boolean nameSet = false;
+                            boolean priceSet = false;
+                            while(!line.contains("</Products>"))
                             {
-                                while(!line.contains("</Product>"))
+                                line = scanner.nextLine();
+                                if(line.contains("<Product>"))
                                 {
-                                    line = scanner.nextLine();
-                                    if(line.contains("<Name"))
+                                    while(!line.contains("</Product>"))
                                     {
-                                        arrOfStr = line.split("=");
-                                        String name = arrOfStr[1];
-                                        name = name.trim();
-                                        name = name.replace("\"", "");
-                                        name = name.replace("/>", "");
-                                        prod.setNamn(name);
-                                        nameSet = true;
-                                    }
-                                    else if(line.contains("<Price"))
-                                    {
-                                        arrOfStr = line.split("=");
-                                        String price = arrOfStr[1];
-                                        price = price.trim();
-                                        price = price.replace("\"", "");
-                                        price = price.replace("/>", "");
-                                        prod.setPris(Float.parseFloat(price));
-                                        priceSet = true;
-                                    }
-                                
-                                    if(nameSet && priceSet)
-                                    {
-                                        produkter.add(new Produkt(prod.getNamn(), prod.getPris()));
-                                        nameSet = false;
-                                        priceSet = false;
-                                        type = FileAttributes.None;
                                         line = scanner.nextLine();
+                                        if(line.contains("<Name"))
+                                        {
+                                            arrOfStr = line.split("=");
+                                            String name = arrOfStr[1];
+                                            name = name.trim();
+                                            name = name.replace("\"", "");
+                                            name = name.replace("/>", "");
+                                            prod.setNamn(name);
+                                            nameSet = true;
+                                        }
+                                        else if(line.contains("<Price"))
+                                        {
+                                            arrOfStr = line.split("=");
+                                            String price = arrOfStr[1];
+                                            price = price.trim();
+                                            price = price.replace("\"", "");
+                                            price = price.replace("/>", "");
+                                            prod.setPris(Float.parseFloat(price));
+                                            priceSet = true;
+                                        }
+                                
+                                        if(nameSet && priceSet)
+                                        {
+                                            produkter.add(new Produkt(prod.getNamn(), prod.getPris()));
+                                            nameSet = false;
+                                            priceSet = false;
+                                            type = FileAttributes.None;
+                                            line = scanner.nextLine();
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    else if(type == FileAttributes.ReceiptNumber)
-                    {
-                        arrOfStr = line.split("=");
-                        String receiptNumber = arrOfStr[1];
-                        receiptNumber = receiptNumber.trim();
-                        receiptNumber = receiptNumber.replace("\"", "");
-                        receiptNumber = receiptNumber.replace("/>", "");
-                        kvittoNummer = Integer.parseInt(receiptNumber);
-                        type = FileAttributes.None;
+                        else if(type == FileAttributes.ReceiptNumber)
+                        {
+                            arrOfStr = line.split("=");
+                            String receiptNumber = arrOfStr[1];
+                            receiptNumber = receiptNumber.trim();
+                            receiptNumber = receiptNumber.replace("\"", "");
+                            receiptNumber = receiptNumber.replace("/>", "");
+                            kvittoNummer = Integer.parseInt(receiptNumber);
+                            type = FileAttributes.None;
+                        }
                     }
                 }
+            }
+            catch (NoSuchElementException e)
+            {
+                System.out.println("Finns inga produkter");
             }
         }
         scanner.close();

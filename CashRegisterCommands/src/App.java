@@ -49,6 +49,8 @@ public class App
             try
             {
                 pris = Float.parseFloat(System.console().readLine());
+                if(pris < 0)
+                    throw new NumberFormatException();
             }
             catch(NumberFormatException e)
             {

@@ -73,8 +73,8 @@ public class App
                 else
                     line = scanner.nextLine();
             }
-            file = file.replace(line, line.replace(line, "\n    <Product>\n        <Name = \"" + namn + "\"/>\n        <Price = \"" 
-                    + pris + "\"/>\n    </Product>\n</Products>"));
+            file = file.replace(line, line.replace(line, "\r\n    <Product>\r\n        <Name = \"" + namn + 
+                    "\"/>\r\n        <Price = \"" + pris + "\"/>\r\n    </Product>\r\n</Products>"));
             Files.write(Paths.get("CashRegister.xml"), file.getBytes());
 
             scanner.close();
@@ -82,7 +82,7 @@ public class App
         }
         catch(IOException e1)
         {
-            e1.printStackTrace();
+            System.out.println("Filen går inte att hitta");
         }
     }
 
@@ -157,7 +157,7 @@ public class App
         }
         catch(IOException e1)
         {
-            e1.printStackTrace();
+            System.out.println("Filen går inte att hitta");
         }
     }
 
@@ -202,7 +202,7 @@ public class App
                     }
                     if(rättProdukt)
                     {
-                        produkt = produkt.concat(line + "\r\n");
+                        produkt = produkt.concat(line);
                         file = file.replace(produkt, "");
                         Files.write(Paths.get("CashRegister.xml"), file.getBytes());
 
@@ -256,7 +256,7 @@ public class App
         }
         catch(IOException e1)
         {
-            e1.printStackTrace();
+            System.out.println("Filen går inte att hitta");
         }
     }
 }

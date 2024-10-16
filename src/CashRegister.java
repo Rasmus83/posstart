@@ -70,7 +70,7 @@ public class CashRegister implements ActionListener
             loadCashRegisterXml();
         }
         catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Filen går inte att hitta");
         }
 
         for(Produkt i : produkter)
@@ -94,7 +94,7 @@ public class CashRegister implements ActionListener
 
     private void loadCashRegisterXml() throws FileNotFoundException
     {
-        Scanner scanner = new Scanner(new File("CashRegister.xml"));
+        Scanner scanner = new Scanner(new File("CashRegisterCommands/CashRegister.xml"));
         while(scanner.hasNextLine())
         {
             String line = scanner.nextLine();
@@ -104,7 +104,7 @@ public class CashRegister implements ActionListener
                 {
                     line = scanner.nextLine();
                     if(!line.isEmpty())
-                        line.trim();
+                        line = line.trim();
 
                     if(line.contains("<Products>"))
                         type = FileAttributes.Products;
@@ -350,8 +350,8 @@ public class CashRegister implements ActionListener
             timer.stop();
             try
             {
-                Scanner scanner = new Scanner(new File("CashRegister.xml"));
-                Scanner scanner2 = new Scanner(Paths.get("CashRegister.xml"), StandardCharsets.UTF_8.name());
+                Scanner scanner = new Scanner(new File("CashRegisterCommands/CashRegister.xml"));
+                Scanner scanner2 = new Scanner(Paths.get("CashRegisterCommands/CashRegister.xml"), StandardCharsets.UTF_8.name());
 
                 String file = scanner2.useDelimiter("\\A").next();
                 String line = "";
@@ -364,7 +364,7 @@ public class CashRegister implements ActionListener
                         line = scanner.nextLine();
                 }
                 file = file.replace(line, line.replace(Integer.toString(kvittoNummer), Integer.toString(kvittoNummer + 1)));
-                Files.write(Paths.get("CashRegister.xml"), file.getBytes());
+                Files.write(Paths.get("CashRegisterCommands/CashRegister.xml"), file.getBytes());
 
                 scanner.close();
                 scanner2.close();
@@ -377,7 +377,7 @@ public class CashRegister implements ActionListener
                 loadCashRegisterXml();
             } catch (FileNotFoundException e1)
             {
-                e1.printStackTrace();
+                System.out.println("Filen går inte att hitta");
             }
             run();
         }

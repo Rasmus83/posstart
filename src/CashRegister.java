@@ -310,7 +310,7 @@ public class CashRegister implements ActionListener
 
         try
         {
-            if(Integer.parseInt(inputCount.getText()) == 0)
+            if(Integer.parseInt(inputCount.getText()) <= 0)
                 return;
             for(int i = 0; i < tillagdaProdukter.size(); i++)
             {

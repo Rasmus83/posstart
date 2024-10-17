@@ -1,10 +1,14 @@
 import java.awt.Font;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import javax.swing.JTextArea;
 
 public class Receipt
 {
     private JTextArea receipt;
     private int receiptNumber;
+    private String date;
 
     Receipt()
     {
@@ -39,6 +43,15 @@ public class Receipt
     public void append(String text)
     {
         receipt.append(text);
+    }
+
+    public void setCurrentDate()
+    {
+        date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    }
+    public String getDate()
+    {
+        return date;
     }
 
     public JTextArea getRecipt()

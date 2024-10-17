@@ -357,19 +357,24 @@ public class CashRegister implements ActionListener
                 }
             }
 
+            float produktBruttoPris = Float.valueOf(produkt.getPris() + (produkt.getPris() * (produkt.getMoms() / 100.0f)));
+            float senastValdProduktBruttoPris = Float.valueOf(senastValdProdukt.getPris() + (senastValdProdukt.getPris() 
+                    * (senastValdProdukt.getMoms() / 100.0f)));
+
             if(receipt.getText().contains(senastValdProdukt.getNamn()))
                 receipt.setText(receipt.getText().replace(senastValdProdukt.getNamn() + "           " + föredettaAntal + " *     " 
-                        + senastValdProdukt.getPris() + "    =   "  + senastValdProdukt.getPris() * föredettaAntal, 
+                        + senastValdProduktBruttoPris + "    =   "  + senastValdProduktBruttoPris * föredettaAntal,
+
                         senastValdProdukt.getNamn() + "           " + antal + " *     " 
-                        + senastValdProdukt.getPris() + "    =   "  + senastValdProdukt.getPris() * antal));
+                        + senastValdProduktBruttoPris + "    =   "  + senastValdProduktBruttoPris * antal));
 
             else
             {
-                receipt.append(produkt.getNamn() + "           " + antal + " *     " + produkt.getPris() + "    =   "  
-                        + produkt.getPris() * antal + "  \n");
+                receipt.append(produkt.getNamn() + "           " + antal + " *     " + produktBruttoPris + "    =   "  
+                        + produktBruttoPris * antal + "  \n");
                 receipt.append("Moms% " + produkt.getMoms() + "    Moms " + produkt.getPris() * (produkt.getMoms() / 100.0f) 
                         + "    Netto " + produkt.getPris() + "    Brutto " 
-                        + Float.valueOf(produkt.getPris() + (produkt.getPris() * (produkt.getMoms() / 100.0f))) + "\n\n");
+                        + produktBruttoPris + "\n\n");
             }
 
             receipt.setText(receipt.getText().replace("Total                                        ------\n" + 

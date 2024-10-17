@@ -136,31 +136,94 @@ public class CashRegister implements ActionListener
                                         if(line.contains("<Name"))
                                         {
                                             arrOfStr = line.split("=");
-                                            String name = arrOfStr[1];
+                                            String name = "";
+                                            try
+                                            {
+                                                name = arrOfStr[1];
+                                            }
+                                            catch(ArrayIndexOutOfBoundsException e)
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
+
                                             name = name.trim();
                                             name = name.replace("\"", "");
                                             name = name.replace("/>", "");
+                                            if(!line.contains("\"" + name + "\"") || !line.contains("/>"))
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
                                             prod.setNamn(name);
                                             nameSet = true;
                                         }
                                         else if(line.contains("<Price"))
                                         {
                                             arrOfStr = line.split("=");
-                                            String price = arrOfStr[1];
+                                            String price = "";
+                                            try
+                                            {
+                                                price = arrOfStr[1];
+                                            }
+                                            catch(ArrayIndexOutOfBoundsException e)
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
                                             price = price.trim();
                                             price = price.replace("\"", "");
                                             price = price.replace("/>", "");
-                                            prod.setPris(Float.parseFloat(price));
+                                            if(!line.contains("\"" + price + "\"") || !line.contains("/>"))
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
+                                            try
+                                            {
+                                                prod.setPris(Float.parseFloat(price));
+                                                if(prod.getPris() <= 0)
+                                                    throw new NumberFormatException();
+                                            }
+                                            catch(NumberFormatException e)
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
                                             priceSet = true;
                                         }
                                         else if(line.contains("<Moms"))
                                         {
                                             arrOfStr = line.split("=");
-                                            String moms = arrOfStr[1];
+                                            String moms = "";
+                                            try
+                                            {
+                                                moms = arrOfStr[1];
+                                            }
+                                            catch(ArrayIndexOutOfBoundsException e)
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
                                             moms = moms.trim();
                                             moms = moms.replace("\"", "");
                                             moms = moms.replace("/>", "");
-                                            prod.setMoms(Integer.parseInt(moms));
+                                            if(!line.contains("\"" + moms + "\"") || !line.contains("/>"))
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
+                                            try
+                                            {
+                                                prod.setMoms(Integer.parseInt(moms));
+                                                if(prod.getMoms() <= 0)
+                                                    throw new NumberFormatException();
+                                            }
+                                            catch(NumberFormatException e)
+                                            {
+                                                System.out.println("Filen har felaktig data");
+                                                return;
+                                            }
                                             momsSet = true;
                                         }
                                 

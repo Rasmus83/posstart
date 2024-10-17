@@ -60,6 +60,25 @@ public class App
         break;
         }
 
+        System.out.print("Momsen på produkten: ");
+        int moms = 0;
+
+        while(true)
+        {
+            try
+            {
+                moms = Integer.parseInt(System.console().readLine());
+                if(moms <= 0)
+                    throw new NumberFormatException();
+            }
+            catch(NumberFormatException e)
+            {
+                System.out.print("Momsen på produkten: ");
+                continue;
+            }
+        break;
+        }
+
         try
         {
             Scanner scanner = new Scanner(new File("CashRegister.xml"));
@@ -75,8 +94,8 @@ public class App
                 else
                     line = scanner.nextLine();
             }
-            file = file.replace(line, line.replace(line, "\r\n    <Product>\r\n        <Name = \"" + namn + 
-                    "\"/>\r\n        <Price = \"" + pris + "\"/>\r\n    </Product>\r\n</Products>"));
+            file = file.replace(line, line.replace(line, "\r\n    <Product>\r\n        <Name = \"" + namn + "\"/>\r\n" + 
+            "        <Price = \"" + pris + "\"/>\r\n        <Moms = \"" + moms + "\"/>\r\n    </Product>\r\n</Products>"));
             Files.write(Paths.get("CashRegister.xml"), file.getBytes());
 
             scanner.close();
@@ -100,6 +119,7 @@ public class App
 
             String namn = "";
             String pris = "";
+            String moms = "";
 
             while(scanner.hasNextLine())
             {
@@ -112,6 +132,7 @@ public class App
                         {
                             boolean namnSet = false;
                             boolean prisSet = false;
+                            boolean momsSet = false;
                             while(!line.contains("</Product>"))
                             {
                                 line = scanner.nextLine();
@@ -133,12 +154,22 @@ public class App
                                     pris = pris.replace("/>", "");
                                     prisSet = true;
                                 }
-
-                                if(namnSet && prisSet)
+                                else if(line.contains("<Moms"))
                                 {
-                                    produkter.add(new Produkt(namn, Float.parseFloat(pris)));
+                                    String[] arrOfStr = line.split("=");
+                                    moms = arrOfStr[1];
+                                    moms = moms.trim();
+                                    moms = moms.replace("\"", "");
+                                    moms = moms.replace("/>", "");
+                                    momsSet = true;
+                                }
+
+                                if(namnSet && prisSet && momsSet)
+                                {
+                                    produkter.add(new Produkt(namn, Float.parseFloat(pris), Integer.parseInt(moms)));
                                     namnSet = false;
                                     prisSet = false;
+                                    momsSet = false;
                                     line = scanner.nextLine();
                                 }
                             }
@@ -152,7 +183,7 @@ public class App
             
             for(Produkt i : produkter)
             {
-                System.out.println("Produkt: " + i.getNamn() + "\nPris: " + i.getPris() + "\n");
+                System.out.println("Produkt: " + i.getNamn() + "\nPris: " + i.getPris() + "\nMoms: " + i.getMoms() + "\n");
             }
 
             scanner.close();

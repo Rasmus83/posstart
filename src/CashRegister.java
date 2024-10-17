@@ -41,7 +41,7 @@ public class CashRegister implements ActionListener
     private Map<String, Float> produktPrisHashMap = new HashMap<String, Float>();
     private Map<String, Integer> produktMomsHashMap = new HashMap<String, Integer>();
 
-    private ArrayList<Receipt> tillagdaProdukter = new ArrayList<Receipt>();
+    private ArrayList<TillagdProdukt> tillagdaProdukter = new ArrayList<TillagdProdukt>();
 
     private Produkt senastValdProdukt = new Produkt();
 
@@ -425,13 +425,13 @@ public class CashRegister implements ActionListener
                 }
                 else if(i == tillagdaProdukter.size() - 1)
                 {
-                    tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
+                    tillagdaProdukter.add(new TillagdProdukt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
                             Integer.parseInt(inputCount.getText())));
                     break;
                 }
             }
             if(tillagdaProdukter.isEmpty())
-                tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
+                tillagdaProdukter.add(new TillagdProdukt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
                         Integer.parseInt(inputCount.getText())));
         }
         catch(NumberFormatException e)

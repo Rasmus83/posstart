@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.NoSuchElementException;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +37,9 @@ public class CashRegister implements ActionListener
     private JButton payButton;
 
     private ArrayList<Produkt> produkter = new ArrayList<Produkt>();
+
+    private Map<String, Float> produktPrisHashMap = new HashMap<String, Float>();
+    private Map<String, Integer> produktMomsHashMap = new HashMap<String, Integer>();
 
     private ArrayList<Receipt> tillagdaProdukter = new ArrayList<Receipt>();
 
@@ -67,6 +72,15 @@ public class CashRegister implements ActionListener
         }
         catch (FileNotFoundException e) {
             System.out.println("Filen går inte att hitta");
+        }
+
+        for(Produkt i : produkter)
+        {
+            produktPrisHashMap.put(i.getNamn(), i.getPris());
+        }
+        for(Produkt i : produkter)
+        {
+            produktMomsHashMap.put(i.getNamn(), i.getMoms());
         }
 
         createReceiptArea();
@@ -320,14 +334,8 @@ public class CashRegister implements ActionListener
     {
         try
         {
-            for(Produkt i : produkter)
-            {
-                if(i.getNamn().equals(inputProductName.getText()))
-                {
-                    senastValdProdukt.setPris(i.getPris());
-                    senastValdProdukt.setMoms(i.getMoms());
-                }
-            }
+            senastValdProdukt.setPris(produktPrisHashMap.get(inputProductName.getText()));
+            senastValdProdukt.setMoms(produktMomsHashMap.get(inputProductName.getText()));
         }
         catch(NullPointerException e)
         {

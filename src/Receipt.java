@@ -5,7 +5,7 @@ public class Receipt
 
     public Receipt()
     {
-        produkt = new Produkt("", 0);
+        produkt = new Produkt("", 0, 0);
         antal = 0;
     }
     public Receipt(Produkt produkt, int antal)
@@ -19,8 +19,18 @@ public class Receipt
         return produkt;
     }
 
+    public void setProdukt(Produkt produkt)
+    {
+        this.produkt = produkt;
+    }
+
     public int getAntal()
     {
         return antal;
+    }
+
+    public void setAntal(int antal)
+    {
+        this.antal = antal;
     }
 }

@@ -1,14 +1,14 @@
-public class Receipt
+public class TillagdProdukt
 {
     private Produkt produkt;
     private int antal;
 
-    public Receipt()
+    public TillagdProdukt()
     {
         produkt = new Produkt("", 0, 0);
         antal = 0;
     }
-    public Receipt(Produkt produkt, int antal)
+    public TillagdProdukt(Produkt produkt, int antal)
     {
         this.produkt = produkt;
         this.antal = antal;

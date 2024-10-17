@@ -382,11 +382,12 @@ public class CashRegister implements ActionListener
         {
             if(!timer.isRunning())
             {
+                receipt.setCurrentDate();
+
                 receipt.append("                     STEFANS SUPERSHOP\n");
                 receipt.append("----------------------------------------------------\n");
                 receipt.append("\n");
-                String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                receipt.append("Kvittonummer: " + receipt.getReceiptNumber() + "        Datum: " + currentDate + "\n");
+                receipt.append("Kvittonummer: " + receipt.getReceiptNumber() + "        Datum: " + receipt.getDate() + "\n");
                 receipt.append("----------------------------------------------------\n");
             }
         }

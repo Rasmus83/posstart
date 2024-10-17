@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +12,6 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,7 +38,8 @@ public class CashRegister implements ActionListener
 
     private ArrayList<Produkt> produkter = new ArrayList<Produkt>();
 
-    private Map<String, Float> produktHashMap = new HashMap<String, Float>();
+    private Map<String, Float> produktPrisHashMap = new HashMap<String, Float>();
+    private Map<String, Integer> produktMomsHashMap = new HashMap<String, Integer>();
 
     private ArrayList<Receipt> tillagdaProdukter = new ArrayList<Receipt>();
 
@@ -77,7 +76,11 @@ public class CashRegister implements ActionListener
 
         for(Produkt i : produkter)
         {
-            produktHashMap.put(i.getNamn(), i.getPris());
+            produktPrisHashMap.put(i.getNamn(), i.getPris());
+        }
+        for(Produkt i : produkter)
+        {
+            produktMomsHashMap.put(i.getNamn(), i.getMoms());
         }
 
         createReceiptArea();
@@ -121,6 +124,7 @@ public class CashRegister implements ActionListener
                             Produkt prod = new Produkt();
                             boolean nameSet = false;
                             boolean priceSet = false;
+                            boolean momsSet = false;
                             while(!line.contains("</Products>"))
                             {
                                 line = scanner.nextLine();
@@ -149,12 +153,23 @@ public class CashRegister implements ActionListener
                                             prod.setPris(Float.parseFloat(price));
                                             priceSet = true;
                                         }
-                                
-                                        if(nameSet && priceSet)
+                                        else if(line.contains("<Moms"))
                                         {
-                                            produkter.add(new Produkt(prod.getNamn(), prod.getPris()));
+                                            arrOfStr = line.split("=");
+                                            String moms = arrOfStr[1];
+                                            moms = moms.trim();
+                                            moms = moms.replace("\"", "");
+                                            moms = moms.replace("/>", "");
+                                            prod.setMoms(Integer.parseInt(moms));
+                                            momsSet = true;
+                                        }
+                                
+                                        if(nameSet && priceSet && momsSet)
+                                        {
+                                            produkter.add(new Produkt(prod.getNamn(), prod.getPris(), prod.getMoms()));
                                             nameSet = false;
                                             priceSet = false;
+                                            momsSet = false;
                                             type = FileAttributes.None;
                                             line = scanner.nextLine();
                                         }
@@ -286,8 +301,13 @@ public class CashRegister implements ActionListener
                         + senastValdProdukt.getPris() + "    =   "  + senastValdProdukt.getPris() * antal));
 
             else
-                receipt.append(produkt.getNamn() + "           " + antal + " *     " 
-                        + produkt.getPris() + "    =   "  + produkt.getPris() * antal + "  \n\n");
+            {
+                receipt.append(produkt.getNamn() + "           " + antal + " *     " + produkt.getPris() + "    =   "  
+                        + produkt.getPris() * antal + "  \n");
+                receipt.append("Moms% " + produkt.getMoms() + "    Moms " + produkt.getPris() * (produkt.getMoms() / 100.0f) 
+                        + "    Netto " + produkt.getPris() + "    Brutto " 
+                        + Float.valueOf(produkt.getPris() + (produkt.getPris() * (produkt.getMoms() / 100.0f))) + "\n\n");
+            }
 
             receipt.setText(receipt.getText().replace("Total                                        ------\n" + 
                     "                                             " + utSkrivenTotalSumma + "\n", ""));
@@ -314,7 +334,8 @@ public class CashRegister implements ActionListener
     {
         try
         {
-            senastValdProdukt.setPris(produktHashMap.get(inputProductName.getText()));
+            senastValdProdukt.setPris(produktPrisHashMap.get(inputProductName.getText()));
+            senastValdProdukt.setMoms(produktMomsHashMap.get(inputProductName.getText()));
         }
         catch(NullPointerException e)
         {
@@ -336,20 +357,23 @@ public class CashRegister implements ActionListener
                 }
                 else if(i == tillagdaProdukter.size() - 1)
                 {
-                    tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris()), 
+                    tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
                             Integer.parseInt(inputCount.getText())));
                     break;
                 }
             }
             if(tillagdaProdukter.isEmpty())
-                tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris()), 
+                tillagdaProdukter.add(new Receipt(new Produkt(senastValdProdukt.getNamn(), senastValdProdukt.getPris(), senastValdProdukt.getMoms()), 
                         Integer.parseInt(inputCount.getText())));
         }
         catch(NumberFormatException e)
         {
             return;
         }
-        totalSumma += (senastValdProdukt.getPris() * Integer.parseInt(inputCount.getText()));
+        int antal = Integer.parseInt(inputCount.getText());
+        float pris = senastValdProdukt.getPris();
+        float moms = senastValdProdukt.getMoms() / 100.0f;
+        totalSumma += (pris + (pris * moms)) * antal;
         inputProductName.setText("");
         inputCount.setText("");
         run();

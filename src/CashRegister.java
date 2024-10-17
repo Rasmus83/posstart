@@ -47,8 +47,6 @@ public class CashRegister implements ActionListener
 
     private int föredettaAntal = 0;
 
-    private int kvittoNummer = 0;
-
     private double totalSumma = 0;
     private double utSkrivenTotalSumma = 0;
 
@@ -67,6 +65,8 @@ public class CashRegister implements ActionListener
     {
         frame = new JFrame("IOT24 POS");
 
+        createReceiptArea();
+
         try {
             loadCashRegisterXml();
         }
@@ -83,7 +83,6 @@ public class CashRegister implements ActionListener
             produktMomsHashMap.put(i.getNamn(), i.getMoms());
         }
 
-        createReceiptArea();
         createQuickButtonsArea();
         createAddArea();
 
@@ -247,7 +246,7 @@ public class CashRegister implements ActionListener
                             receiptNumber = receiptNumber.trim();
                             receiptNumber = receiptNumber.replace("\"", "");
                             receiptNumber = receiptNumber.replace("/>", "");
-                            kvittoNummer = Integer.parseInt(receiptNumber);
+                            receipt.setReceiptNumber(Integer.parseInt(receiptNumber));
                             type = FileAttributes.None;
                         }
                     }
@@ -387,7 +386,7 @@ public class CashRegister implements ActionListener
                 receipt.append("----------------------------------------------------\n");
                 receipt.append("\n");
                 String currentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                receipt.append("Kvittonummer: " + kvittoNummer + "        Datum: " + currentDate + "\n");
+                receipt.append("Kvittonummer: " + receipt.getReceiptNumber() + "        Datum: " + currentDate + "\n");
                 receipt.append("----------------------------------------------------\n");
             }
         }
@@ -464,7 +463,8 @@ public class CashRegister implements ActionListener
                     else
                         line = scanner.nextLine();
                 }
-                file = file.replace(line, line.replace(Integer.toString(kvittoNummer), Integer.toString(kvittoNummer + 1)));
+                file = file.replace(line, line.replace(Integer.toString(receipt.getReceiptNumber()), 
+                        Integer.toString(receipt.getReceiptNumber() + 1)));
                 Files.write(Paths.get("CashRegisterCommands/CashRegister.xml"), file.getBytes());
 
                 scanner.close();

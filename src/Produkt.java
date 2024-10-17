@@ -2,16 +2,19 @@ public class Produkt
 {
     private String namn;
     private float pris;
+    private int moms;
 
     public Produkt()
     {
         this.namn = "";
         this.pris = 0;
+        moms = 0;
     }
-    public Produkt(String namn, float pris)
+    public Produkt(String namn, float pris, int moms)
     {
         this.namn = namn;
         this.pris = pris;
+        this.moms = moms;
     }
 
     public void setNamn(String namn)
@@ -30,5 +33,14 @@ public class Produkt
     public float getPris()
     {
         return pris;
+    }
+
+    public void setMoms(int moms)
+    {
+        this.moms = moms;
+    }
+    public int getMoms()
+    {
+        return moms;
     }
 }

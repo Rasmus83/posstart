@@ -29,7 +29,7 @@ import java.awt.event.*;
 public class CashRegister implements ActionListener
 {
     private JFrame frame;
-    private JTextArea receipt;
+    private Receipt receipt;
     private ArrayList<JButton> buttons = new ArrayList<JButton>();
     private JTextArea inputProductName;
     private JTextArea inputCount;
@@ -312,14 +312,9 @@ public class CashRegister implements ActionListener
 
     private void createReceiptArea()
     {
-        receipt = new JTextArea();
-        receipt.setSize(400,400); 
-        receipt.setLineWrap(true);
-        receipt.setEditable(false);
-        receipt.setVisible(true);
-        receipt.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        receipt = new Receipt();
 
-        JScrollPane scroll = new JScrollPane (receipt);
+        JScrollPane scroll = new JScrollPane (receipt.getRecipt());
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scroll.setBounds(600, 0, 400, 1000);
@@ -396,7 +391,7 @@ public class CashRegister implements ActionListener
                 receipt.append("----------------------------------------------------\n");
             }
         }
-    }            
+    }
 
     private void addProdukt()
     {

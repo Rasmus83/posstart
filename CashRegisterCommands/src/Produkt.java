@@ -6,8 +6,8 @@ public class Produkt
 
     public Produkt()
     {
-        this.namn = "";
-        this.pris = 0;
+        namn = "";
+        pris = 0;
         moms = 0;
     }
     public Produkt(String namn, float pris, int moms)

@@ -2,12 +2,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.text.SimpleDateFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.NoSuchElementException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -355,26 +355,30 @@ public class CashRegister implements ActionListener
             float senastValdProduktBruttoPris = Float.valueOf(senastValdProdukt.getPris() + (senastValdProdukt.getPris() 
                     * (senastValdProdukt.getMoms() / 100.0f)));
 
+            NumberFormat numberFormat = NumberFormat.getInstance(new Locale("en"));
+            numberFormat.setMaximumFractionDigits(2);
+
             if(receipt.getText().contains(senastValdProdukt.getNamn()))
                 receipt.setText(receipt.getText().replace(senastValdProdukt.getNamn() + "           " + föredettaAntal + " *     " 
-                        + senastValdProduktBruttoPris + "    =   "  + senastValdProduktBruttoPris * föredettaAntal,
+                        + senastValdProduktBruttoPris + "    =   "  + numberFormat.format(senastValdProduktBruttoPris * föredettaAntal),
 
                         senastValdProdukt.getNamn() + "           " + antal + " *     " 
-                        + senastValdProduktBruttoPris + "    =   "  + senastValdProduktBruttoPris * antal));
+                        + senastValdProduktBruttoPris + "    =   "  + numberFormat.format(senastValdProduktBruttoPris * antal)));
 
             else
             {
                 receipt.append(produkt.getNamn() + "           " + antal + " *     " + produktBruttoPris + "    =   "  
-                        + produktBruttoPris * antal + "  \n");
+                        + numberFormat.format(produktBruttoPris * antal) + "  \n");
                 receipt.append("Moms% " + produkt.getMoms() + "    Moms " + produkt.getPris() * (produkt.getMoms() / 100.0f) 
                         + "    Netto " + produkt.getPris() + "    Brutto " 
                         + produktBruttoPris + "\n\n");
             }
 
+
             receipt.setText(receipt.getText().replace("Total                                        ------\n" + 
-                    "                                             " + utSkrivenTotalSumma + "\n", ""));
+                    "                                             " + numberFormat.format(utSkrivenTotalSumma) + "\n", ""));
             receipt.append("Total                                        ------\n");
-            receipt.append("                                             " + totalSumma + "\n");
+            receipt.append("                                             " + numberFormat.format(totalSumma) + "\n");
 
             utSkrivenTotalSumma = totalSumma;
         }
